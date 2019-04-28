@@ -1,17 +1,23 @@
-import gdax
-import datetime
-from math import log
-from numpy import exp
-import sqlalchemy
-from pystats import py_calc
-from pytz import timezone
-from time import sleep
+from timeseries_model import TimeseriesTrading
+import configuration as config
 
 
 def main():
-	pass
+
+	# create instance of TimeseriesTrading Class
+	trading_obj = TimeseriesTrading(
+		config.key,
+		config.b64secret,
+		config.passphrase,
+		config.time_differential,
+		config.btc_usd,
+		config.gdax_day
+	)
+	prediction = trading_obj.execute()
+	print(prediction)
 
 # main executable
 if __name__ == "__main__":
 
 	# do something
+	main()
