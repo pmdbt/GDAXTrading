@@ -30,17 +30,18 @@ class TimeseriesTrading:
                         self.b64secret,
                         self.passphrase)
 
-        return auth_client
+        self.auth_client = auth_client
 
 
     #function to grab historical data set with specific parameters, converts data set into r readable data with only prices
-    def historic_data(auth_client, product_id, granularity, time_differential):
+    def historic_data(self, client, product_id, granularity, time_differential):
+
         end_time = datetime.datetime.now(timezone('UTC'))
 
         start_time = datetime.datetime.now(timezone('UTC')) \
         - datetime.timedelta(days=time_differential)
 
-        data = auth_client.get_product_historic_rates(
+        data = client.get_product_historic_rates(
                 product_id=product_id,
                 start=start_time.isoformat(),
                 end=end_time.isoformat(),
@@ -55,7 +56,7 @@ class TimeseriesTrading:
 
 
     #dynamically set up the resulting model from R regression
-    def model_creation(prices, time_differential):
+    def model_creation(self, prices, time_differential):
         coef_results, adj_rsquared, has_const = py_calc(prices, time_differential) #stores the 3 values returned by py_calc
         logged_result = 0
         V1 = coef_results
@@ -86,14 +87,13 @@ class TimeseriesTrading:
 
     # method to execute everything class method in desired order
     def execute(self):
-        auth_client = self.authenticate_account()
+        self.authenticate_account()
         historical_prices = self.historic_data(
-            auth_client,
+            self.auth_client,
             self.product_id,
             self.granularity,
-            self.time_differential
-        )
-        
+            self.time_differential)
+
         predicted_price = self.model_creation(
             historical_prices,
             self.time_differential

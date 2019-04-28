@@ -9,13 +9,12 @@ def main():
 		key=config.key,
 		b64secret=config.b64secret,
 		passphrase=config.passphrase,
-		time_differential=config.time_differential,
+		time_differential=config.time_differential[0],
 		product_id=config.btc_usd,
 		granularity=config.gdax_day
 	)
 
 	prediction = trading_obj.execute()
-	print(prediction)
 
 # main executable
 if __name__ == "__main__":
