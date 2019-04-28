@@ -20,6 +20,7 @@ class TimeseriesTrading:
         self.granularity = kwargs['granularity']
         self.time_differential = kwargs['time_differential']
 
+
     def authenticate_account(self):
         #public_client = gdax.PublicClient()
         #creating the authorized client object
@@ -33,18 +34,19 @@ class TimeseriesTrading:
 
 
     #function to grab historical data set with specific parameters, converts data set into r readable data with only prices
-    def historic_data(product_id, granularity, time_differential):
-    	end_time = datetime.datetime.now(timezone('UTC'))
-    	start_time = datetime.datetime.now(timezone('UTC')) \
+    def historic_data(auth_client, product_id, granularity, time_differential):
+        end_time = datetime.datetime.now(timezone('UTC'))
+
+        start_time = datetime.datetime.now(timezone('UTC')) \
         - datetime.timedelta(days=time_differential)
 
-    	data = auth_client.get_product_historic_rates(
+        data = auth_client.get_product_historic_rates(
                 product_id=product_id,
                 start=start_time.isoformat(),
                 end=end_time.isoformat(),
                 granularity=granularity)
 
-    	closing_prices = []
+        closing_prices = []
 
         for i in range(len(data)): #gdax returns a list within a list. The 5th element of inner list is close price
             closing_prices.append(data[i][4])
@@ -91,6 +93,7 @@ class TimeseriesTrading:
             self.granularity,
             self.time_differential
         )
+        
         predicted_price = self.model_creation(
             historical_prices,
             self.time_differential
@@ -107,9 +110,9 @@ class TimeseriesTrading:
 #my_sql_input.append(str(datetime.datetime.now(timezone('UTC')) + datetime.timedelta(days=1)))
 ##execute calculations for all the time differentials
 #for days in time_differential:
-#	prices = historic_data(product_id, gdax_day, days)
-#	my_sql_input.append(model_creation(prices, days))
-#	sleep(1)
+#    prices = historic_data(product_id, gdax_day, days)
+#    my_sql_input.append(model_creation(prices, days))
+#    sleep(1)
 #
 #my_sql_input.append(prices[len(prices)-1])
 ##my_sql_input.append(str(prices[len(prices)-2]))
@@ -119,8 +122,8 @@ class TimeseriesTrading:
 #
 #cursor = connection.cursor()
 #cursor.execute(
-#	"""INSERT INTO different_predictions (times, btc100, btc130, btc150, btc170, btc200, btc250, price)
-#	VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""", (my_sql_input))
+#    """INSERT INTO different_predictions (times, btc100, btc130, btc150, btc170, btc200, btc250, price)
+#    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""", (my_sql_input))
 #connection.commit()
 ##cursor.execute("""SELECT * FROM different_predictions""")
 ##print(cursor.fetchall())

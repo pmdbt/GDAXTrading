@@ -6,13 +6,14 @@ def main():
 
 	# create instance of TimeseriesTrading Class
 	trading_obj = TimeseriesTrading(
-		config.key,
-		config.b64secret,
-		config.passphrase,
-		config.time_differential,
-		config.btc_usd,
-		config.gdax_day
+		key=config.key,
+		b64secret=config.b64secret,
+		passphrase=config.passphrase,
+		time_differential=config.time_differential,
+		product_id=config.btc_usd,
+		granularity=config.gdax_day
 	)
+
 	prediction = trading_obj.execute()
 	print(prediction)
 
