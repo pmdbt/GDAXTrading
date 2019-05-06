@@ -1,4 +1,4 @@
-import gdax
+import cbpro
 import datetime
 from math import log
 from numpy import exp
@@ -21,17 +21,9 @@ class TimeseriesTrading:
         self.time_differential = kwargs['time_differential']
 
 
-    def authenticate_account(self):
-        #public_client = gdax.PublicClient()
-        #creating the authorized client object
-
-        auth_client = gdax.AuthenticatedClient(
-                        self.key,
-                        self.b64secret,
-                        self.passphrase)
-
-        self.auth_client = auth_client
-
+    def set_public_client(self):
+        # create the public client to obtain data from api
+        self.public_client = cbpro.PublicClient()
 
     #function to grab historical data set with specific parameters, converts data set into r readable data with only prices
     def historic_data(self, client, product_id, granularity, time_differential):
@@ -52,6 +44,8 @@ class TimeseriesTrading:
         for i in range(len(data)): #gdax returns a list within a list. The 5th element of inner list is close price
             closing_prices.append(data[i][4])
         closing_prices_sorted = list(reversed(closing_prices))
+        # print the last 5 days closing_prices
+        print(closing_prices_sorted[-5:])
         return closing_prices_sorted #gdax gives most recent days first, we want them last
 
 
@@ -87,9 +81,9 @@ class TimeseriesTrading:
 
     # method to execute everything class method in desired order
     def execute(self):
-        self.authenticate_account()
+        self.set_public_client()
         historical_prices = self.historic_data(
-            self.auth_client,
+            self.public_client,
             self.product_id,
             self.granularity,
             self.time_differential)

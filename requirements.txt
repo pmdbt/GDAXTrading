@@ -1,6 +1,6 @@
 # third party modules
 
-gdax
+cbpro
 sqlalchemy
 pandas
 statsmodels
