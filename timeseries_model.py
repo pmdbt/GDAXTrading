@@ -77,7 +77,7 @@ class TimeseriesTrading:
 
         predicted_price = exp(logged_result) #must transform result back to prices instead of log prices
         today_close = prices[-1]
-        print("Today's closing price is: " + str(prior_day_close))
+        print("Today's closing price is: " + str(today_close))
         print("The predicted price for tomorrow's close is: " + str(predicted_price))
         return today_close, predicted_price
 
@@ -97,30 +97,3 @@ class TimeseriesTrading:
         return predicted_price
 
 
-#Testing model_creation
-#prices = historic_data(product_id, gdax_day, time_differential)
-#model_creation(prices, time_differential)
-
-#Main executables
-#my_sql_input = []
-#my_sql_input.append(str(datetime.datetime.now(timezone('UTC')) + datetime.timedelta(days=1)))
-##execute calculations for all the time differentials
-#for days in time_differential:
-#    prices = historic_data(product_id, gdax_day, days)
-#    my_sql_input.append(model_creation(prices, days))
-#    sleep(1)
-#
-#my_sql_input.append(prices[len(prices)-1])
-##my_sql_input.append(str(prices[len(prices)-2]))
-#print(my_sql_input)
-##MySQL interface
-#connection = MySQLdb.connect(host=host, user=user, passwd=password, db=db)
-#
-#cursor = connection.cursor()
-#cursor.execute(
-#    """INSERT INTO different_predictions (times, btc100, btc130, btc150, btc170, btc200, btc250, price)
-#    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""", (my_sql_input))
-#connection.commit()
-##cursor.execute("""SELECT * FROM different_predictions""")
-##print(cursor.fetchall())
-#cursor.close()
