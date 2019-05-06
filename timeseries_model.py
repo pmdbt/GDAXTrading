@@ -27,7 +27,8 @@ class TimeseriesTrading:
 
     #function to grab historical data set with specific parameters, converts data set into r readable data with only prices
     def historic_data(self, client, product_id, granularity, time_differential):
-
+        # note that coinbase closing time is midnight UTC, which is
+        # 5 pm PST
         end_time = datetime.datetime.now(timezone('UTC'))
 
         start_time = datetime.datetime.now(timezone('UTC')) \
@@ -41,6 +42,7 @@ class TimeseriesTrading:
 
         closing_prices = []
 
+        print(data[:5])
         for i in range(len(data)): #gdax returns a list within a list. The 5th element of inner list is close price
             closing_prices.append(data[i][4])
         closing_prices_sorted = list(reversed(closing_prices))
@@ -74,10 +76,10 @@ class TimeseriesTrading:
             print("Something probably went wrong.") #helps with bug checks
 
         predicted_price = exp(logged_result) #must transform result back to prices instead of log prices
-        print("Today's closing price is: " + str(prices[len(prices)-1]))
+        today_close = prices[-1]
+        print("Today's closing price is: " + str(prior_day_close))
         print("The predicted price for tomorrow's close is: " + str(predicted_price))
-        return predicted_price
-
+        return today_close, predicted_price
 
     # method to execute everything class method in desired order
     def execute(self):

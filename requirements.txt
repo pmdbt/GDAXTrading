@@ -5,3 +5,4 @@ sqlalchemy
 pandas
 statsmodels
 scipy
+mysql-connector
