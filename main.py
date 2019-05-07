@@ -130,13 +130,13 @@ def main():
                 prediction)
 
         # upload logic here to mysql
-        #aws_mysql.uploading(
-        #        user=config.user,
-        #        password=config.password,
-        #        host=config.host,
-        #        db=config.db,
-        #        table='btc_trading_v025'
-        #)
+        aws_mysql.uploading(
+            user=config.user,
+            password=config.password,
+            host=config.host,
+            db=config.db,
+            table='btc_trading_v025'
+        )
     except:
         traceback.print_exc(limit=5)
 
