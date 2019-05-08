@@ -136,6 +136,7 @@ def main():
             host=config.host,
             db=config.db,
             table='btc_trading_v025'
+            upload_data=upload_data
         )
     except:
         traceback.print_exc(limit=5)
