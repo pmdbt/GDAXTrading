@@ -7,7 +7,7 @@ import pandas as pd
 
 
 # global date for this script
-global_date_today = datetime.datetime.utcnow().date()
+global_date_today = datetime.datetime.utcnow().date() - datetime.timedelta(1)
 global_date_today_str = global_date_today.strftime('%m-%d-%Y')
 global_date_yesterday_str = (global_date_today - datetime.timedelta(1))\
 .strftime('%m-%d-%Y')
