@@ -119,7 +119,7 @@ def main():
 
         # organize data for uploading to mysql
         today_close_price, prediction = trading_obj.execute()
-        if past_data:
+        if not past_data.empty():
             upload_data = organize_upload(
                 today_close_price,
                 prediction,
