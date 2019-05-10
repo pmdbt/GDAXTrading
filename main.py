@@ -64,7 +64,7 @@ def walkforward_accuracy(two_days_ago, yesterday, today_close):
 
 # function to organize upload data into a fixed dataframe before uploading
 def organize_upload(today_close, tomorrow_predicted_close, past_data=None):
-    if past_data:
+    if isinstance(past_data, pd.DataFrame):
         yesterday = past_data.loc[past_data['date'] == \
                 global_date_yesterday_str]
         two_days = past_data.loc[past_data['date'] == \
@@ -78,7 +78,7 @@ def organize_upload(today_close, tomorrow_predicted_close, past_data=None):
         prior_prediction_accuracy = None
 
     dict_to_upload = {
-                        'Date': global_date_today_str,
+                        'date': global_date_today_str,
                         'close': today_close,
                         'tomorrow_predicted_close': tomorrow_predicted_close,
                         'prior_day_prediction_accuracy': \
@@ -119,7 +119,7 @@ def main():
 
         # organize data for uploading to mysql
         today_close_price, prediction = trading_obj.execute()
-        if past_data.empty == False:
+        if isinstance(past_data, pd.DataFrame):
             upload_data = organize_upload(
                 today_close_price,
                 prediction,
