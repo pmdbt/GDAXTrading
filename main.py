@@ -78,7 +78,7 @@ def organize_upload(today_close, tomorrow_predicted_close, past_data=None):
         prior_prediction_accuracy = None
 
     dict_to_upload = {
-                        'date': global_date_today_str,
+                        'date': global_date_today,
                         'close': today_close,
                         'tomorrow_predicted_close': tomorrow_predicted_close,
                         'prior_day_prediction_accuracy': \
