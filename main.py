@@ -71,9 +71,9 @@ def organize_upload(today_close, tomorrow_predicted_close, past_data=None):
                 global_date_twodays_str]
 
         prior_prediction_accuracy = walkforward_accuracy(
-                twodays,
-                yesterday,
-                today_close)
+            two_days,
+            yesterday,
+            today_close)
     else:
         prior_prediction_accuracy = None
 
