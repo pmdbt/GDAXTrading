@@ -44,20 +44,22 @@ def walkforward_accuracy(two_days_ago, yesterday, today_close):
                 return 'equal_to'
 
 
-    if two_days_ago and yesterday:
-        # variable is ranked by starting alphebet, a < b < c etc for time ranking
-        a_prediction = two_days_ago['tomorrow_predicted_close']
-        b_close = yesterday['close']
-        b_prediction = yesterday['tomorrow_predicted_close']
-        c_close = today_close
+    if isinstance(two_days_ago, pd.DataFrame) and \
+            isinstance(yesterday, pd.DataFrame):
+        if two_days_ago.empty == False and yesterday.empty == False:
+            # variable is ranked by starting alphebet, a < b < c etc for time ranking
+            a_prediction = two_days_ago['tomorrow_predicted_close']
+            b_close = yesterday['close']
+            b_prediction = yesterday['tomorrow_predicted_close']
+            c_close = today_close
 
-        # compare results
-        compare_close_prices = compare_values(b_close, c_close)
-        compare_predictions = compare_values(a_prediction, b_prediction)
-        if compare_close_prices == compare_predictions:
-            return True
-        else:
-            return False
+            # compare results
+            compare_close_prices = compare_values(b_close, c_close)
+            compare_predictions = compare_values(a_prediction, b_prediction)
+            if compare_close_prices == compare_predictions:
+                return True
+            else:
+                return False
     else:
         return None # since accuracy cannot be computed
 
