@@ -8,11 +8,8 @@ import pandas as pd
 
 # global date for this script
 global_date_today = datetime.datetime.utcnow().date() - datetime.timedelta(1)
-global_date_today_str = global_date_today.strftime('%m-%d-%Y')
-global_date_yesterday_str = (global_date_today - datetime.timedelta(1))\
-.strftime('%m-%d-%Y')
-global_date_twodays_str = (global_date_today - datetime.timedelta(2))\
-.strftime('%m-%d-%Y')
+global_date_yesterday = (global_date_today - datetime.timedelta(1))
+global_date_twodays = (global_date_today - datetime.timedelta(2))
 
 
 # function to compare yesterday's prediction with today's result
@@ -68,9 +65,9 @@ def walkforward_accuracy(two_days_ago, yesterday, today_close):
 def organize_upload(today_close, tomorrow_predicted_close, past_data=None):
     if isinstance(past_data, pd.DataFrame):
         yesterday = past_data.loc[past_data['date'] == \
-                global_date_yesterday_str]
+                global_date_yesterday]
         two_days = past_data.loc[past_data['date'] == \
-                global_date_twodays_str]
+                global_date_twodays]
 
         prior_prediction_accuracy = walkforward_accuracy(
             two_days,
@@ -94,16 +91,16 @@ def organize_upload(today_close, tomorrow_predicted_close, past_data=None):
 # main function to execute the entire script flow
 def main():
     try:
-        past_data_query = "select * from btc_trading_v025 where date like\
-        '{0}' or date like '{1}';".format(
-                global_date_twodays_str,
-                global_date_yesterday_str)
+        past_data_query = "select * from btc_trading_v025 where date\
+                > CURDATE()-4 and date < CURDATE()-1;"
         past_data = aws_mysql.downloading(
                 user=config.user,
                 password=config.password,
                 host=config.host,
                 db=config.db,
                 query=past_data_query)
+        print(past_data)
+        print(type(past_data['date'][0]))
     except:
         traceback.print_exc(limit=5)
         past_data = None
@@ -126,10 +123,12 @@ def main():
                 today_close_price,
                 prediction,
                 past_data=past_data)
+            print(upload_data)
         else:
             upload_data = organize_upload(
                 today_close_price,
                 prediction)
+            print(upload_data)
 
         # upload logic here to mysql
         aws_mysql.uploading(
