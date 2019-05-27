@@ -5,7 +5,7 @@ import cbpro
 unintended orders etc"""
 
 
-class ordering(object):
+class Ordering(object):
 
     """
     This class is meant to deal and handle everything to do with ordering
@@ -31,34 +31,48 @@ class ordering(object):
         self.recommendation = recommendation
 
 
-    def find_products(self, search=None):
+    def find_products(self):
 
         """
         This class method searches for all the available cryptocurriencies
-        that is available to trade. It allows one optional parameter called
-        search, which is a string ticker input of a specific coin. If specified
-        it will return the current market price of said coin or else it will
-        return None.
-
-        params: search (str)
+        that is available to trade.
 
         returns: product(s) (list) or None
         """
 
-        if search == None:
-            pass
-        else:
-            pass
-
-    
+        available_products = self.client.get_products()
+        return available_products
 
 
+    def parser(input=None, string_to_match=''):
+        """
+        This function takes in a parameter from the user as a string to match
+        to the non-base pair of the currency. If The result contains said string,
+        then it's returned. Otherwise, None is returned
+
+        params: string_to_match (str)
+
+        returns: matched (str)
+        """
+
+        if str(input)[-3:].upper() == string_to_match.upper():
+            return input
 
 
-def order(price_today, predicted_price, position_held):
-	#first determine if the account currently has an open order or any positions
-	#If pending order exists, cancel it. If positions held, liquidate asap
-	#When it's confirmed that no pending orders exist and no positions are held, begin the ordering process
-	#If predicted_price > price_today, initialize long position.
-	#If predicted_price < price_today, initialize short position.
-	#If predicted_price == price_today, do nothing, no position will be initialized
+    def parse_list(input=None, string_to_match=None):
+        """
+        This function is meant to abstract the process of parsing a list of
+        potentially tradable products, then using the parser() function to find
+        and return only the currency pairs with USD as the base currency
+        """
+
+        matched = []
+        for item in iter(input):
+            temp_var = \
+            parser(input=item['display_name'], string_to_match=string_to_match)
+            if temp_var:
+                matched.append(temp_var)
+            else:
+                next
+
+        return matched

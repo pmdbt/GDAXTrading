@@ -10,7 +10,7 @@ import configuration as config
 from pystats import py_calc
 
 
-class TimeseriesTrading:
+class TimeseriesTrading(object):
 
     def __init__(self, **kwargs):
         self.key = kwargs['key']
@@ -95,5 +95,3 @@ class TimeseriesTrading:
             self.time_differential
         )
         return predicted_price
-
-
