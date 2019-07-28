@@ -9,6 +9,13 @@ from time import sleep
 import configuration as config
 from pystats import py_calc
 
+"""
+This class is deprecated, the simple time series method does not perform well.
+In actual walk forward testing for 90 days, the result was pretty much 
+50/50, which means the algorithm would not have performed any better than
+an algo that randomly buys or not buy each day. This is why I'm switching
+over to a neural network approach to see if we can get better results.
+"""
 
 class TimeseriesTrading(object):
 
@@ -53,6 +60,9 @@ class TimeseriesTrading(object):
 
     #dynamically set up the resulting model from R regression
     def model_creation(self, prices, time_differential):
+        """
+        This funciton is not deprecated
+        """
         coef_results, adj_rsquared, has_const = py_calc(prices, time_differential) #stores the 3 values returned by py_calc
         logged_result = 0
         V1 = coef_results
