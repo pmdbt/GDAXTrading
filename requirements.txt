@@ -1,8 +1,0 @@
-# third party modules
-
-cbpro
-sqlalchemy
-pandas
-statsmodels
-scipy
-mysql-connector

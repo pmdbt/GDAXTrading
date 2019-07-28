@@ -118,6 +118,7 @@ def main():
 
         # organize data for uploading to mysql
         today_close_price, prediction = trading_obj.execute()
+
         if isinstance(past_data, pd.DataFrame):
             upload_data = organize_upload(
                 today_close_price,
@@ -141,6 +142,7 @@ def main():
         )
     except:
         traceback.print_exc(limit=5)
+
 
 # main executable
 if __name__ == "__main__":
