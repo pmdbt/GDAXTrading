@@ -6,6 +6,7 @@ import datetime
 from pytz import timezone
 from datetime import timedelta
 from math import floor
+import numpy as np
 
 # custom imports
 import configuration as config
