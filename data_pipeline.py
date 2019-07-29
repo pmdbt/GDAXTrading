@@ -4,6 +4,8 @@ import cbpro
 import logging
 import datetime
 from pytz import timezone
+from datetime import timedelta
+from math import floor
 
 # custom imports
 import configuration as config
@@ -18,6 +20,8 @@ class Data_Pipeline(object):
     preprocess data needed for the neural network to train. It leverages
     preprocessing pipelines from sklearn
     """
+
+
     def __init__(self, key, b64secret, passphrase, product_id, granularity,
                  time_differential):
         self.key = key
@@ -27,12 +31,42 @@ class Data_Pipeline(object):
         self.granularity = granularity
         self.time_differential = time_differential
 
+
     def set_public_client(self):
         """
         This method sets the public client from gdax pro to a class variable
         """
 
         self.public_client = cbpro.PublicClient()
+
+
+    def number_of_requests(self, start, end):
+        """
+        This method takes in 2 paramters, then finds out the number
+        of requests it takes to obtaint he entire historical data set
+        off of coinbase's api.
+
+        params:
+
+        start (start datetime object, object)
+        end (end datetime object, object)
+
+        returns:
+
+        requests_needed (int)
+        """
+
+        time_delta = end - start
+        num_requests = floor(time_delta.days / 300)
+        remainder = time_delta.days % 300
+        if remainder != 0:
+            num_requests += 1
+
+        logging.info("Total number of requests: {}".format(num_requests))
+        logging.info("Remainder is: {}".format(remainder))
+
+        return num_requests, remainder
+
 
     def get_data(self, client):
         """
@@ -59,9 +93,26 @@ class Data_Pipeline(object):
 
         # api does not allow fetching of more than 300 days worth of data
         # at once, so we must do it iteratively
-        time_delta = end_time - start_time
-        print(time_delta.days)
+        num_requests, remainder = self.number_of_requests(start_time, end_time)
 
+        iter_start = None
+        iter_end = None
+        for i in range(0, num_requests-1):
+            if i == 0:
+                iter_start = start_time
+                iter_end = iter_start + timedelta(300)
+            else:
+                iter_start = timedelta((i*300)+1)+start_time
+                iter_end = iter_start + timedelta(300)
+            logging.info(iter_start.strftime("%m-%d-%Y"))
+            logging.info(iter_end.strftime("%m-%d-%Y"))
+
+        if remainder != 0:
+            iter_start = iter_end + timedelta(1)
+            iter_end = end_time
+            logging.info(iter_start.strftime("%m-%d-%Y"))
+            logging.info(iter_end.strftime("%m-%d-%Y"))
+        
 
         data = client.get_product_historic_rates(product_id=self.product_id,
                                                  end=end_time.isoformat(),
