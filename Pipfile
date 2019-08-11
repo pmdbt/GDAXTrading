@@ -3,6 +3,12 @@ url = "https://pypi.python.org/simple"
 verify_ssl = true
 name = "pypi"
 
+
+[[source]]
+url = "http://$PYPI_USERNAME:${PYPI_PASSWORD}@18.207.243.15:8081/"
+verify_ssl = true
+name = "company_pypi"
+
 [packages]
 cbpro = "*"
 SQLAlchemy = "*"
