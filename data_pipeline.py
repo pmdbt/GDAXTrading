@@ -69,6 +69,23 @@ class Data_Pipeline(object):
         return num_requests, remainder
 
 
+    def iter_requests(self, start, end, remainder):
+        """
+        This method iterates in a for loop to fetch all the historical data
+        from coinbase pro
+
+        params:
+
+        start (datetime object)
+        end (datetime object)
+        remainder (int)
+
+        returns: complete_data (pd.Dataframe)
+        """
+
+        pass
+
+
     def get_data(self, client):
         """
         This method uses the gdax client to obtain the entire historical
@@ -84,7 +101,7 @@ class Data_Pipeline(object):
 
 
         returns:
-        
+
         historical_data (pandas dataframe)
         """
 
@@ -113,7 +130,7 @@ class Data_Pipeline(object):
             iter_end = end_time
             logging.info(iter_start.strftime("%m-%d-%Y"))
             logging.info(iter_end.strftime("%m-%d-%Y"))
-        
+
 
         data = client.get_product_historic_rates(product_id=self.product_id,
                                                  end=end_time.isoformat(),
