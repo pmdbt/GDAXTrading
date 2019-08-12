@@ -69,7 +69,7 @@ class Data_Pipeline(object):
         return num_requests, remainder
 
 
-    def iter_requests(self, start, end, remainder):
+    def iter_requests(self, start, end, remainder, num_requests, client):
         """
         This method iterates in a for loop to fetch all the historical data
         from coinbase pro
@@ -79,11 +79,52 @@ class Data_Pipeline(object):
         start (datetime object)
         end (datetime object)
         remainder (int)
+        num_requests (int)
+        client (coinbase pro client object)
 
-        returns: complete_data (pd.Dataframe)
+        returns: combined_data (pd.Dataframe)
         """
 
-        pass
+        iter_start = None
+        iter_end = None
+        combined_data = []
+
+        for i in range(0, num_requests-1):
+            if i == 0:
+                iter_start = start
+                iter_end = iter_start + timedelta(300)
+            else:
+                iter_start = timedelta((i*300)+i)+start
+                iter_end = iter_start + timedelta(300)
+
+            logging.info(iter_start.strftime("%m-%d-%Y"))
+            logging.info(iter_end.strftime("%m-%d-%Y"))
+
+            combined_data.extend(
+                client.get_product_historic_rates(
+                    product_id=self.product_id,
+                    end=iter_end.isoformat(),
+                    start=iter_start.isoformat(),
+                    granularity=self.granularity)
+                )
+
+        if remainder != 0:
+            iter_start = iter_end + timedelta(1)
+            iter_end = end
+            logging.info(iter_start.strftime("%m-%d-%Y"))
+            logging.info(iter_end.strftime("%m-%d-%Y"))
+
+            combined_data.extend(
+                client.get_product_historic_rates(
+                    product_id=self.product_id,
+                    end=iter_end.isoformat(),
+                    start=iter_start.isoformat(),
+                    granularity=self.granularity)
+                )
+
+        logging.debug(combined_data[:12])
+
+        return combined_data
 
 
     def get_data(self, client):
@@ -113,45 +154,22 @@ class Data_Pipeline(object):
         # at once, so we must do it iteratively
         num_requests, remainder = self.number_of_requests(start_time, end_time)
 
-        iter_start = None
-        iter_end = None
-        for i in range(0, num_requests-1):
-            if i == 0:
-                iter_start = start_time
-                iter_end = iter_start + timedelta(300)
-            else:
-                iter_start = timedelta((i*300)+1)+start_time
-                iter_end = iter_start + timedelta(300)
-            logging.info(iter_start.strftime("%m-%d-%Y"))
-            logging.info(iter_end.strftime("%m-%d-%Y"))
-
-        if remainder != 0:
-            iter_start = iter_end + timedelta(1)
-            iter_end = end_time
-            logging.info(iter_start.strftime("%m-%d-%Y"))
-            logging.info(iter_end.strftime("%m-%d-%Y"))
-
-
-        data = client.get_product_historic_rates(product_id=self.product_id,
-                                                 end=end_time.isoformat(),
-                                                 granularity=self.granularity)
+        combined_data = self.iter_requests(
+            start=start_time,
+            end=end_time,
+            remainder=remainder,
+            num_requests=num_requests,
+            client=client)
 
         logging.info('The length of original historical dataset is: {}'\
-                .format(str(len(data))))
+                .format(str(len(combined_data))))
 
         headers = ['time', 'low', 'high', 'open', 'close', 'volume']
-        data_frame = pd.DataFrame(data, columns=headers)
+        historical_data = pd.DataFrame(combined_data, columns=headers)
 
-        print(data_frame.head())
+        print(historical_data.head())
 
-    def clean_data(self):
-        pass
-
-    def preprocessing_pipeline(self):
-        pass
-
-    def execute_all(self):
-        pass
+        return historical_data
 
 
 if __name__ == "__main__":
