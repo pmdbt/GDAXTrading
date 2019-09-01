@@ -14,6 +14,22 @@ class Preprocessing(object):
 
 
     def data_cleaning(self):
+        """
+        This method is meant to clean the data using pandas methods before
+        transformation into numpy array.
+
+        1. make time column into datetime string format
+        2. Turn rest of columns into float values
+        3. reverse the order of the dataframe
+
+        params:
+        
+        self.historical_data (dataframe)
+
+        returns:
+
+        cleaned_dataframe (pandas.DataFrame)
+        """
         pass
 
 
