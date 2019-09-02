@@ -4,6 +4,8 @@ from DataBases import aws_mysql_database as aws_mysql
 import datetime
 import traceback
 import pandas as pd
+from deep_learning_preprocessing import Preprocessing
+from data_pipeline import Data_Pipeline
 
 
 # global date for this script
@@ -144,8 +146,22 @@ def main():
         traceback.print_exc(limit=5)
 
 
+# main function to train neural network
+def neural_main():
+    # create Data_Pipeline object to get new data
+    pass
+
+    # create Preprocessing_Pipeline to clean data
+    # for testing, use the csv file in directory
+    test_data = pd.read_csv('test_data.csv') 
+    print(test_data.head())
+    preprocessing_obj = Preprocessing(test_data)
+    cleaned_data = preprocessing_obj.data_cleaning(test_data)
+    print(cleaned_data.head())
+
 # main executable
 if __name__ == "__main__":
 
     # do something
-    main()
+    #main()
+    neural_main()

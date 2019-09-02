@@ -179,4 +179,5 @@ if __name__ == "__main__":
             config.btc_usd, config.gdax_day, config.time_differential)
 
     test_obj.set_public_client()
-    test_obj.get_data(test_obj.public_client)
+    historical_data = test_obj.get_data(test_obj.public_client)
+    #historical_data.to_csv('test_data.csv', index=False)
