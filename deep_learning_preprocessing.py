@@ -47,10 +47,30 @@ class Preprocessing(object):
             returns: human_format (str)
             """
 
-            date_obj = datetime.datetime.fromtimestamp(epoch_time)
-            return date_obj.strftime('%d-%m-%Y')
+            # from epoch to datetime
+            #date_obj = datetime.datetime.fromtimestamp(epoch_time)
+            #return date_obj.strftime('%d-%m-%Y')
+            # from datetime to epoch
+            date_obj = epoch_time.timestamp()
+            return date_obj
 
         if isinstance(data, pd.DataFrame):
+            # find out all the datatypes for each column
+            logging.info('data types of columsn before cleaning')
+            logging.info(data.dtypes)
+            # change the date columns from unix epoch to format dd-mm-yy
+            data['time'] =  data.apply(
+                    lambda row: epoch_to_calendar(row['Date']), axis=1)
+            # change all data types to numerical/float
+            data.apply(pd.to_numeric, errors='coerce')
+            logging.info('data types of columns after cleaning')
+            logging.info(data.dtypes)
+            # use pandas fill methods to automatically fill missing values
+            # with the average of the former + latter / 2
+            data = (data.ffill() + data.bfill()) / 2
+            # run ffill() and bfill() again incase first and last values are
+            # also NaN
+            data = data.bfill().ffill()
             # change the date columns from unix epoch to format dd-mm-yy
             data['time'] =  data.apply(
                     lambda row: epoch_to_calendar(row['time']), axis=1)

@@ -157,7 +157,7 @@ def neural_main():
     print(test_data.head())
     preprocessing_obj = Preprocessing(test_data)
     cleaned_data = preprocessing_obj.data_cleaning(test_data)
-    print(cleaned_data.head())
+    print(cleaned_data.tail(10))
 
 # main executable
 if __name__ == "__main__":

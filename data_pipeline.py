@@ -7,12 +7,13 @@ from pytz import timezone
 from datetime import timedelta
 from math import floor
 import numpy as np
+from time import sleep
 
 # custom imports
 import configuration as config
 
 # logging config
-logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
+logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
 
 class Data_Pipeline(object):
@@ -100,13 +101,19 @@ class Data_Pipeline(object):
             logging.info(iter_start.strftime("%m-%d-%Y"))
             logging.info(iter_end.strftime("%m-%d-%Y"))
 
-            combined_data.extend(
-                client.get_product_historic_rates(
-                    product_id=self.product_id,
-                    end=iter_end.isoformat(),
-                    start=iter_start.isoformat(),
-                    granularity=self.granularity)
-                )
+            temp_data = client.get_product_historic_rates(
+                product_id=self.product_id,
+                end=iter_end.isoformat(),
+                start=iter_start.isoformat(),
+                granularity=self.granularity)
+            
+            logging.debug(type(temp_data))
+            logging.debug(len(temp_data))
+
+            if len(temp_data):
+                combined_data.extend(temp_data.reverse())
+
+            sleep(5)
 
         if remainder != 0:
             iter_start = iter_end + timedelta(1)
@@ -114,13 +121,17 @@ class Data_Pipeline(object):
             logging.info(iter_start.strftime("%m-%d-%Y"))
             logging.info(iter_end.strftime("%m-%d-%Y"))
 
-            combined_data.extend(
-                client.get_product_historic_rates(
-                    product_id=self.product_id,
-                    end=iter_end.isoformat(),
-                    start=iter_start.isoformat(),
-                    granularity=self.granularity)
-                )
+            temp_data = client.get_product_historic_rates(
+                product_id=self.product_id,
+                end=iter_end.isoformat(),
+                start=iter_start.isoformat(),
+                granularity=self.granularity)
+
+            logging.debug(type(temp_data))
+            logging.debug(len(temp_data))
+
+            if len(temp_data):
+                combined_data.extend(temp_data.reverse())
 
         logging.debug(combined_data[:12])
 
