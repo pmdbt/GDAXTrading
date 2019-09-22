@@ -158,6 +158,10 @@ def neural_main():
     preprocessing_obj = Preprocessing(test_data)
     cleaned_data = preprocessing_obj.data_cleaning(test_data)
     print(cleaned_data.head())
+    # turn data into numpy array
+    cleaned_array = preprocessing_obj.pandas_to_numpy(cleaned_data)
+    print(cleaned_array)
+    preprocessing_obj.transformation_pipeline(cleaned_array)
 
 # main executable
 if __name__ == "__main__":

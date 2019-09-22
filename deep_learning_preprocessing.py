@@ -1,6 +1,7 @@
 import logging
 import sklearn
 import pandas as pd
+import numpy as np
 import datetime
 
 # logging config
@@ -103,10 +104,53 @@ class Preprocessing(object):
             exit()
 
 
-    def transformation_pipeline(self):
-        pass
+    def transformation_pipeline(self, data):
+        """
+        This function uses the sklearn pipeline method to add transformations
+        to the raw data. The data as to be in numpy arrays first.
+
+        Params: data (numpy array)
+
+        Returns: transformed_data (numpy array)
+        """
+
+        def X_Y_split(array):
+            """
+            This function splits an entire numpy array into the X and Y
+            variables for modeling purposes. It assumes the first column in
+            the array is the dependent variable (Y).
+
+            Params: array (np.ndarray)
+
+            Returns: ind_vals (np.ndarray), dep_vals (np.ndarray)
+            """
+            ind_vals = array[:, 1:]
+            dep_vals = array[:, 0]
+            return ind_vals, dep_vals
+
+        if isinstance(data, np.ndarray):
+            # perform log transformation on the price returns
+            ind_vals, dep_vals = X_Y_split(data)
+            print(dep_vals)
+        else:
+            logging.INFO('param in transformation_pipeline not numpy array...')
+            exit()
 
 
-    def pandas_to_numpy(self):
-        pass
+    def pandas_to_numpy(self, dataframe):
+        """
+        Turns a pandas dataframe into a numpy array before passing into
+        deep learning models. Split out pandas series of date columsn or
+        time based columns and returns them seperately as another object for
+        later use.
+
+        params: data (Pandas.DataFrame)
+
+        returns: split_obj (Pandas.Series), data (numpy array)
+        """
+        if isinstance(dataframe, pd.DataFrame):
+            return dataframe.to_numpy()
+        else:
+            logging.INFO('parameter in pandas_to_numpy func not a dataframe.')
+            exit()
 
