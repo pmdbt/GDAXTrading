@@ -25,7 +25,7 @@ class Preprocessing(object):
 
         1. make time column into datetime string format
         2. Turn rest of columns into float values
-        3. reverse the order of the dataframe
+        3. Turn data into percentage changes
 
         params:
         
@@ -36,7 +36,6 @@ class Preprocessing(object):
         cleaned_dataframe (pandas.DataFrame)
         """
 
-        # function to convert unix epoch time to datetime
         def epoch_to_calendar(epoch_time):
             """
             This function turns epoch_time to string format of human
@@ -48,19 +47,30 @@ class Preprocessing(object):
             """
 
             # from epoch to datetime
-            #date_obj = datetime.datetime.fromtimestamp(epoch_time)
-            #return date_obj.strftime('%d-%m-%Y')
-            # from datetime to epoch
-            date_obj = epoch_time.timestamp()
-            return date_obj
+            date_obj = datetime.datetime.fromtimestamp(epoch_time)
+            return date_obj.strftime('%d-%m-%Y')
+
+
+        def datetime_conversion(str_datetime):
+            """
+            This function converts string datetime data into epoch int values.
+
+            params: str_datetime (str)
+
+            returns: epoch_time (int)
+            """
+            date_obj = datetime.datetime.strptime(str_datetime, '%Y-%m-%d')
+            epoch_time = date_obj.timestamp()
+            return epoch_time
+
 
         if isinstance(data, pd.DataFrame):
             # find out all the datatypes for each column
             logging.info('data types of columsn before cleaning')
             logging.info(data.dtypes)
             # change the date columns from unix epoch to format dd-mm-yy
-            data['time'] =  data.apply(
-                    lambda row: epoch_to_calendar(row['Date']), axis=1)
+            data['Date'] =  data.apply(
+                    lambda row: datetime_conversion(row['Date']), axis=1)
             # change all data types to numerical/float
             data.apply(pd.to_numeric, errors='coerce')
             logging.info('data types of columns after cleaning')
@@ -71,10 +81,18 @@ class Preprocessing(object):
             # run ffill() and bfill() again incase first and last values are
             # also NaN
             data = data.bfill().ffill()
+            # replace all values of 0 with 1 to prevent inf % change
+            data.replace(0, 1, inplace=True)
+            # split out the date column from next calculation
+            date_column = data['Date']
+            # turn data into percentage changes and then drop date column
+            data = data.pct_change().drop('Date', axis=1)
+            # join the split out data column with main frame then drop 1st row
+            data['Date'] = date_column
+            data = data[1:]
             # change the date columns from unix epoch to format dd-mm-yy
-            data['time'] =  data.apply(
-                    lambda row: epoch_to_calendar(row['time']), axis=1)
-
+            data['Date'] =  data.apply(
+                    lambda row: epoch_to_calendar(row['Date']), axis=1)
             return data
 
         else:
@@ -84,9 +102,11 @@ class Preprocessing(object):
             # exit the program
             exit()
 
+
     def transformation_pipeline(self):
         pass
 
 
     def pandas_to_numpy(self):
         pass
+
