@@ -1,5 +1,5 @@
 import logging
-import sklearn
+from sklearn.compose import ColumnTransformer
 import pandas as pd
 import numpy as np
 import datetime
@@ -7,8 +7,8 @@ import datetime
 # logging config
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 
-class Preprocessing(object):
 
+class Preprocessing(object):
     """
     This class is the template for all the preprocessing needs of deep learning
     model architectures for using time series analysis with historical
@@ -17,7 +17,6 @@ class Preprocessing(object):
 
     def __init__(self, historical_data):
         self.historical_data = historical_data
-
 
     def data_cleaning(self, data):
         """
@@ -51,7 +50,6 @@ class Preprocessing(object):
             date_obj = datetime.datetime.fromtimestamp(epoch_time)
             return date_obj.strftime('%d-%m-%Y')
 
-
         def datetime_conversion(str_datetime):
             """
             This function converts string datetime data into epoch int values.
@@ -64,14 +62,13 @@ class Preprocessing(object):
             epoch_time = date_obj.timestamp()
             return epoch_time
 
-
         if isinstance(data, pd.DataFrame):
             # find out all the datatypes for each column
             logging.info('data types of columsn before cleaning')
             logging.info(data.dtypes)
             # change the date columns from unix epoch to format dd-mm-yy
-            data['Date'] =  data.apply(
-                    lambda row: datetime_conversion(row['Date']), axis=1)
+            data['Date'] = data.apply(
+                lambda row: datetime_conversion(row['Date']), axis=1)
             # change all data types to numerical/float
             data.apply(pd.to_numeric, errors='coerce')
             logging.info('data types of columns after cleaning')
@@ -90,10 +87,11 @@ class Preprocessing(object):
             data = data.pct_change().drop('Date', axis=1)
             # join the split out data column with main frame then drop 1st row
             data['Date'] = date_column
+            logging.info('full dataframe before dropping nan row for first date', data.head())
             data = data[1:]
             # change the date columns from unix epoch to format dd-mm-yy
-            data['Date'] =  data.apply(
-                    lambda row: epoch_to_calendar(row['Date']), axis=1)
+            data['Date'] = data.apply(
+                lambda row: epoch_to_calendar(row['Date']), axis=1)
             return data
 
         else:
@@ -102,7 +100,6 @@ class Preprocessing(object):
                     type {0}'.format(str(type(data))))
             # exit the program
             exit()
-
 
     def transformation_pipeline(self, data):
         """
@@ -131,11 +128,18 @@ class Preprocessing(object):
         if isinstance(data, np.ndarray):
             # perform log transformation on the price returns
             ind_vals, dep_vals = X_Y_split(data)
-            print(dep_vals)
+            logging.debug('The dep_vals before log transformation: ', dep_vals)
+            # transformers for Y values
+            Y_pipeline = ColumnTransformer([
+                ('logging', np.log()),
+            ])
+            # transformers for X values
+            pass
+            # call the full transformation pipeline sequentially then return both transformed X and Y values
+            pass
         else:
             logging.INFO('param in transformation_pipeline not numpy array...')
             exit()
-
 
     def pandas_to_numpy(self, dataframe):
         """
@@ -153,4 +157,3 @@ class Preprocessing(object):
         else:
             logging.INFO('parameter in pandas_to_numpy func not a dataframe.')
             exit()
-

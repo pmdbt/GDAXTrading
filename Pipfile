@@ -16,8 +16,11 @@ statsmodels = "*"
 scipy = "*"
 mysql-connector = "*"
 sklearn = "*"
+# cbpro needs to be updated to 1.1.5 before the below can be updated
+#requests = ">2.20.0"
 
 [dev-packages]
 
 [requires]
 python_version = "3.7"
+#requests = ">2.20.0"

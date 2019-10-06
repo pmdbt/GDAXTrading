@@ -1,12 +1,9 @@
-from timeseries_model import TimeseriesTrading
+from deep_learning_preprocessing import Preprocessing
 import configuration as config
 from DataBases import aws_mysql_database as aws_mysql
 import datetime
 import traceback
 import pandas as pd
-from deep_learning_preprocessing import Preprocessing
-from data_pipeline import Data_Pipeline
-
 
 # global date for this script
 global_date_today = datetime.datetime.utcnow().date() - datetime.timedelta(1)
@@ -62,7 +59,6 @@ def walkforward_accuracy(two_days_ago, yesterday, today_close):
     else:
         return None # since accuracy cannot be computed
 
-
 # function to organize upload data into a fixed dataframe before uploading
 def organize_upload(today_close, tomorrow_predicted_close, past_data=None):
     if isinstance(past_data, pd.DataFrame):
@@ -88,7 +84,6 @@ def organize_upload(today_close, tomorrow_predicted_close, past_data=None):
 
     upload_data = pd.DataFrame([dict_to_upload])
     return upload_data
-
 
 # main function to execute the entire script flow
 def main():
@@ -161,7 +156,7 @@ def neural_main():
     # turn data into numpy array
     cleaned_array = preprocessing_obj.pandas_to_numpy(cleaned_data)
     print(cleaned_array)
-    preprocessing_obj.transformation_pipeline(cleaned_array)
+    #preprocessing_obj.transformation_pipeline(cleaned_array)
 
 # main executable
 if __name__ == "__main__":
