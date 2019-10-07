@@ -151,11 +151,12 @@ def neural_main():
     test_data = pd.read_csv('test_data.csv') 
     print(test_data.head())
     preprocessing_obj = Preprocessing(test_data)
-    cleaned_data = preprocessing_obj.data_cleaning(test_data)
-    print(cleaned_data.head())
+    preprocessing_obj.data_cleaning(test_data)
+    print(preprocessing_obj.cleaned_data.head())
     # turn data into numpy array
-    cleaned_array = preprocessing_obj.pandas_to_numpy(cleaned_data)
-    print(cleaned_array)
+    cleaned_array = preprocessing_obj.pandas_to_numpy(preprocessing_obj.cleaned_data)
+    X_vals, y_vals = preprocessing_obj.X_Y_split(cleaned_array)
+    preprocessing_obj._train_test_split(X_vals, y_vals)
     #preprocessing_obj.transformation_pipeline(cleaned_array)
 
 # main executable

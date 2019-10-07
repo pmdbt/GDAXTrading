@@ -1,5 +1,8 @@
 import logging
 from sklearn.compose import ColumnTransformer
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline, FeatureUnion
+from sklearn.preprocessing import StandardScaler
 import pandas as pd
 import numpy as np
 import datetime
@@ -17,6 +20,7 @@ class Preprocessing(object):
 
     def __init__(self, historical_data):
         self.historical_data = historical_data
+        self.cleaned_data = None
 
     def data_cleaning(self, data):
         """
@@ -92,6 +96,8 @@ class Preprocessing(object):
             # change the date columns from unix epoch to format dd-mm-yy
             data['Date'] = data.apply(
                 lambda row: epoch_to_calendar(row['Date']), axis=1)
+            # save a copy of the cleaned data as a class variable
+            self.cleaned_data = data
             return data
 
         else:
@@ -101,7 +107,7 @@ class Preprocessing(object):
             # exit the program
             exit()
 
-    def transformation_pipeline(self, data):
+    def _transformation_pipeline(self):
         """
         This function uses the sklearn pipeline method to add transformations
         to the raw data. The data as to be in numpy arrays first.
@@ -110,38 +116,33 @@ class Preprocessing(object):
 
         Returns: transformed_data (numpy array)
         """
-
-        def X_Y_split(array):
-            """
-            This function splits an entire numpy array into the X and Y
-            variables for modeling purposes. It assumes the first column in
-            the array is the dependent variable (Y).
-
-            Params: array (np.ndarray)
-
-            Returns: ind_vals (np.ndarray), dep_vals (np.ndarray)
-            """
-            ind_vals = array[:, 1:]
-            dep_vals = array[:, 0]
-            return ind_vals, dep_vals
-
-        if isinstance(data, np.ndarray):
+        if isinstance(self.X_train, np.ndarray) and isinstance(self.X_test, np.ndarray) and \
+                isinstance(self.y_test, np.ndarray) and isinstance(self.y_train, np.ndarray):
             # perform log transformation on the price returns
-            ind_vals, dep_vals = X_Y_split(data)
-            logging.debug('The dep_vals before log transformation: ', dep_vals)
+            logging.debug('The dep_vals before log transformation: ', self.y_train)
             # transformers for Y values
-            Y_pipeline = ColumnTransformer([
+            y_pipeline = ColumnTransformer([
                 ('logging', np.log()),
             ])
+            # drop the last column for Dates first and save a copy as object variable
+            self.data_dates = self.X_train[:, -1]
             # transformers for X values
-            pass
+            X_pipeline = Pipeline([
+                ('std_scalar', StandardScaler()),
+            ])
             # call the full transformation pipeline sequentially then return both transformed X and Y values
+            full_pipeline = FeatureUnion(transformer_list=[
+                ('y_pipeline', y_pipeline),
+                ('X_pipeline', X_pipeline),
+            ])
+            # execute full pipeline
             pass
         else:
-            logging.INFO('param in transformation_pipeline not numpy array...')
+            logging.INFO('training and testing data in transformation_pipeline not numpy array...')
             exit()
 
-    def pandas_to_numpy(self, dataframe):
+    @staticmethod
+    def pandas_to_numpy(dataframe):
         """
         Turns a pandas dataframe into a numpy array before passing into
         deep learning models. Split out pandas series of date columsn or
@@ -156,4 +157,42 @@ class Preprocessing(object):
             return dataframe.to_numpy()
         else:
             logging.INFO('parameter in pandas_to_numpy func not a dataframe.')
+            exit()
+
+    @staticmethod
+    def X_Y_split(array):
+        """
+        This function splits an entire numpy array into the X and Y
+        variables for modeling purposes. It assumes the first column in
+        the array is the dependent variable (Y).
+
+        Params: array (np.ndarray)
+
+        Returns: ind_vals (np.ndarray), dep_vals (np.ndarray)
+        """
+        ind_vals = array[:, 1:]
+        dep_vals = array[:, 0]
+        return ind_vals, dep_vals
+
+    def _train_test_split(self, X_vals, Y_vals):
+        """
+        private class method to split the cleaned data into training and testing set, then splitting again to X and Y
+        train and test sets respectively.
+
+        :return: X_train (np.array), X_test (np.array), y_train (np.array), y_test (np.array)
+        """
+        if isinstance(X_vals, np.ndarray) and isinstance(Y_vals, np.ndarray):
+            X_train, X_test, y_train, y_test = train_test_split(
+                X_vals,
+                Y_vals,
+                test_size=0.2,
+                random_state=None,
+                shuffle=False)
+            # set object variables
+            self.X_train = X_train
+            self.X_test = X_test
+            self.y_train = y_train
+            self.y_test = y_test
+        else:
+            logging.info('cannot split data into training and testing, function argument was not a numpy array')
             exit()
