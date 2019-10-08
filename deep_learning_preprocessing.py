@@ -1,11 +1,12 @@
 import logging
 from sklearn.compose import ColumnTransformer
 from sklearn.model_selection import train_test_split
-from sklearn.pipeline import Pipeline, FeatureUnion
-from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler, FunctionTransformer
 import pandas as pd
 import numpy as np
 import datetime
+from custom_transformers import NaturalLogValues
 
 # logging config
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
@@ -107,36 +108,57 @@ class Preprocessing(object):
             # exit the program
             exit()
 
-    def _transformation_pipeline(self):
+    def _training_pipeline(self):
         """
         This function uses the sklearn pipeline method to add transformations
-        to the raw data. The data as to be in numpy arrays first.
+        to the raw data. The data as to be in numpy arrays first. This if for training transformation only
 
         Params: data (numpy array)
 
         Returns: transformed_data (numpy array)
         """
-        if isinstance(self.X_train, np.ndarray) and isinstance(self.X_test, np.ndarray) and \
-                isinstance(self.y_test, np.ndarray) and isinstance(self.y_train, np.ndarray):
+        if isinstance(self.X_train, np.ndarray) and isinstance(self.y_train, np.ndarray):
             # perform log transformation on the price returns
             logging.debug('The dep_vals before log transformation: ', self.y_train)
-            # transformers for Y values
-            y_pipeline = ColumnTransformer([
-                ('logging', np.log()),
-            ])
             # drop the last column for Dates first and save a copy as object variable
             self.data_dates = self.X_train[:, -1]
+            # transformers for X values
+            # TODO: remove the Date column before calling the pipeline fit_transform method
+            X_pipeline = Pipeline([
+                ('std_scalar', StandardScaler()),
+            ])
+            # execute y pipeline first, then X pipeline
+            self.y_train_transformed = np.log(self.y_train)
+            self.X_train_transformed = X_pipeline.fit_transform(X=self.X_train)
+        else:
+            logging.INFO('training and testing data in transformation_pipeline not numpy array...')
+            exit()
+    # TODO: copy all the changes from _training_pipeline over to _testing_pipeline
+    def _testing_pipeline(self):
+        """
+        This function uses the sklearn pipeline method to add transformations
+        to the raw data. The data as to be in numpy arrays first. This if for testing data only.
+
+        Params: data (numpy array)
+
+        Returns: transformed_data (numpy array)
+        """
+        if isinstance(self.X_test, np.ndarray) and isinstance(self.y_test, np.ndarray):
+            # perform log transformation on the price returns
+            logging.debug('The dep_vals before log transformation: ', self.y_test)
+            # transformers for Y values
+            y_pipeline = ColumnTransformer([
+                ('logging', NaturalLogValues()),
+            ])
+            # drop the last column for Dates first and save a copy as object variable
+            self.data_dates = self.X_test[:, -1]
             # transformers for X values
             X_pipeline = Pipeline([
                 ('std_scalar', StandardScaler()),
             ])
-            # call the full transformation pipeline sequentially then return both transformed X and Y values
-            full_pipeline = FeatureUnion(transformer_list=[
-                ('y_pipeline', y_pipeline),
-                ('X_pipeline', X_pipeline),
-            ])
-            # execute full pipeline
-            pass
+            # execute y pipeline first, then X pipeline
+            self.y_test_transformed = y_pipeline.transform(y=self.y_test)
+            self.X_test_transformed = X_pipeline.transform(X=self.X_test)
         else:
             logging.INFO('training and testing data in transformation_pipeline not numpy array...')
             exit()
@@ -170,8 +192,9 @@ class Preprocessing(object):
 
         Returns: ind_vals (np.ndarray), dep_vals (np.ndarray)
         """
+        # TODO: currently splitting the open price, want to make labels the closing price
         ind_vals = array[:, 1:]
-        dep_vals = array[:, 0]
+        dep_vals = array[:, 0].astype(float)
         return ind_vals, dep_vals
 
     def _train_test_split(self, X_vals, Y_vals):
@@ -196,3 +219,13 @@ class Preprocessing(object):
         else:
             logging.info('cannot split data into training and testing, function argument was not a numpy array')
             exit()
+
+    def nn_data_prepare(self, cleaned_array):
+        """
+        Wraps the 3 steps using the private members of this class to prepare the data for neural network archetectures
+        :return: None
+        """
+        X_data, y_data = self.X_Y_split(cleaned_array)
+        self._train_test_split(X_data, y_data)
+        self._training_pipeline()
+        self._testing_pipeline()

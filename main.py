@@ -155,9 +155,9 @@ def neural_main():
     print(preprocessing_obj.cleaned_data.head())
     # turn data into numpy array
     cleaned_array = preprocessing_obj.pandas_to_numpy(preprocessing_obj.cleaned_data)
-    X_vals, y_vals = preprocessing_obj.X_Y_split(cleaned_array)
-    preprocessing_obj._train_test_split(X_vals, y_vals)
-    #preprocessing_obj.transformation_pipeline(cleaned_array)
+    # call prepare data method
+    preprocessing_obj.nn_data_prepare(cleaned_array)
+
 
 # main executable
 if __name__ == "__main__":
